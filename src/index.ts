@@ -19,14 +19,7 @@ async function serverInit() {
 
     // websocket server init
     const wss = new WebSocketService(server);
-
-    wss.connect.on("connection", (ws) => {
-        ws.on('error', (err) => {
-            console.log(err);
-        })
-
-        console.log('connection intilaised')
-    })
+    wss.initListener();
 }
 
 serverInit();
