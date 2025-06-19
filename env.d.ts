@@ -1,5 +1,6 @@
 declare namespace NodeJS {
     export interface ProcessEnv {
-        PORT: string;
+        PORT: number;
+        VALKEY_REDIS_KEY: string;
     }
 }

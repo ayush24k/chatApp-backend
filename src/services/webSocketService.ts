@@ -1,23 +1,47 @@
-import { error } from 'console';
-import {WebSocketServer} from 'ws'
+import { WebSocket, WebSocketServer } from 'ws'
+import { pub, sub } from './redisClient';
 
 class WebSocketService {
     private wss: WebSocketServer;
-    
+    private isRedisListnerSetup = false
+
     constructor(server: any) {
         console.log("initialised websocket server...");
-        this.wss = new WebSocketServer({server});
+        this.wss = new WebSocketServer({ server });
+        this.setupRedisSubscription();
+    }
+
+    private async setupRedisSubscription() {
+        if (this.isRedisListnerSetup) return;
+        await sub.subscribe("MESSAGES");
+
+        sub.on('message', async (channel, message) => {
+            console.log(`new message from redis`, message);
+            if (channel === "MESSAGES") {
+                this.wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(message);
+                    }
+                })
+            }
+        })
+
+        this.isRedisListnerSetup = true;
+        console.log("Redis listner and subscition setup complete!");
     }
 
     public initListener() {
         console.log("Sockect Listener init...")
         this.wss.on('connection', (ws) => {
+            console.log("connection initilasied!");
             ws.on('error', err => console.log(err));
-
             ws.on('message', async (message) => {
-                console.log("New Message received: ", message.toString('utf-8'))
+                const messageStr = message.toString('utf-8');
+                console.log("New Message received: ", messageStr)
+                // publish this data to redis
+                await pub.publish("MESSAGES", messageStr)
+
             })
-            console.log("connection initilasied!"); 
         })
     }
 
