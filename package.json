@@ -15,8 +15,10 @@
   "dependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.3",
+    "@types/ws": "^8.18.1",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "tsc-watch": "^7.1.1",

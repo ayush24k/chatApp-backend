@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import { WebSocketServer } from 'ws';
 dotenv.config();
 
 const app = express();
@@ -11,13 +12,21 @@ app.get('/', (req, res) => {
 async function serverInit() {
     const PORT = process.env.PORT ? process.env.PORT : 8000;
 
-    try {
-        const server = app.listen(PORT, () => {
-            console.log(`Server startd at port: ${PORT} \nlink: http://localhost:${PORT}`);
+    // http server init
+    const server = app.listen(PORT, () => {
+        console.log(`Server startd at port: ${PORT} \nlink: http://localhost:${PORT}`);
+    })
+
+    // websocket server init
+    const wss = new WebSocketServer({server});
+
+    wss.on('connection', (ws) => {
+        ws.on("error", (err) => {
+            console.log(err);
         })
-    } catch (err) {
-        console.log("Error starting the server:", err);
-    }
+        console.log("connection initilaised")
+    })
+
 }
 
 serverInit();
