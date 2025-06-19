@@ -14,6 +14,9 @@ class WebSocketService {
         this.wss.on('connection', (ws) => {
             ws.on('error', err => console.log(err));
 
+            ws.on('message', async (message) => {
+                console.log("New Message received: ", message.toString('utf-8'))
+            })
             console.log("connection initilasied!"); 
         })
     }
