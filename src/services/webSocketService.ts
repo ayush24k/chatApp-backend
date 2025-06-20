@@ -1,5 +1,6 @@
 import { WebSocket, WebSocketServer } from 'ws'
 import { pub, sub } from './redisClient';
+import prismaClient from './prismaClient';
 
 class WebSocketService {
     private wss: WebSocketServer;
@@ -18,9 +19,16 @@ class WebSocketService {
         sub.on('message', async (channel, message) => {
             console.log(`new message from redis`, message);
             if (channel === "MESSAGES") {
-                this.wss.clients.forEach((client) => {
+                this.wss.clients.forEach(async (client) => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(message);
+
+                        // sending data to database
+                        await prismaClient.message.create({
+                            data: {
+                                text: message
+                            }
+                        })
                     }
                 })
             }
